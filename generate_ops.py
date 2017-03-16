@@ -1,11 +1,14 @@
-main_ops = ["add", "sub", "mul", "div", "mod"]
-main_symbols = ['+', '-', '*', '/', '%']
+main_ops = ["add", "sub", "mul", "div"]
+main_symbols = ['+', '-', '*', '/']
 
 other_ops = ["pow", "min", "max"]
 other_op_fxns = [["powl", "powf"], ["fminl", "fminf"], ["fmaxl", "fmaxf"]]
 
 tiny_ops = ["neg"]
 tiny_symbols = ['-']
+
+int_ops = ["mod"]
+int_symbols = ['%']
 
 with open('operations.c', 'w') as cfile:
     cfile.write("/* This file was generated from generate_ops.py */\n\n");
@@ -40,6 +43,12 @@ with open('operations.c', 'w') as cfile:
     for op, sym in zip(tiny_ops, tiny_symbols):
         cfile.write("lval lval_%s(lval x) {\n" % op)
         cfile.write("\treturn %sx;\n" % sym)
+        cfile.write("}\n")
+
+    cfile.write("/* Integer-only operations */\n");
+    for op, sym in zip(int_ops, int_symbols):
+        cfile.write("lval lval_%s(lval x) {\n" % op)
+        cfile.write("\treturn lval_int(x %s y);\n" % sym)
         cfile.write("}\n")
 
 with open('operations.h', 'w') as hfile:
