@@ -1,7 +1,7 @@
 CC=cc
 CFLAGS=-I -std=c99 -g -Werror -Wall
 LDFLAGS=-ledit -lm
-SOURCES=parsing.c mpc.c
+SOURCES=parsing.c mpc.c operations.c
 DEPS=$(SOURCES:.c=.h)
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=parsing
