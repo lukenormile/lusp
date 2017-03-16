@@ -36,6 +36,7 @@ typedef struct {
 ** Error Type
 */
 
+#pragma GCC diagnostic ignored "-Wpadded"
 typedef struct {
   mpc_state_t state;
   int expected_num;
@@ -266,6 +267,7 @@ typedef struct mpc_ast_t {
   char *contents;
   mpc_state_t state;
   int children_num;
+#pragma GCC diagnostic ignored "-Wpadded"
   struct mpc_ast_t** children;
 } mpc_ast_t;
 
