@@ -1,8 +1,7 @@
 # lusp
 lusp is a lisp created using Daniel Holden's
 [*Build Your Own Lisp*](http://www.buildyourownlisp.com/) as
-a starting point. However, it differs significantly from the
-lisp built in the book.
+a starting point.
 
 ## Installation
 ```bash
