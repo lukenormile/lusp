@@ -5,6 +5,7 @@
 #include <editline/readline.h>
 
 #include "parsing.h"
+#include "operations.h"
 #include "mpc.h"
 
 /* If we are compiling on Windows compile these functions. */
@@ -49,7 +50,7 @@ lval lval_int(long x) {
 /* Create a new float-type lval. */
 lval lval_float(float x) {
 	lval v;
-	v.type = LVAL_INT;
+	v.type = LVAL_FLOAT;
 	v.val.num.floating = x;
 	return v;
 }
@@ -87,7 +88,6 @@ void lval_print(lval v) {
 			}
 	}
 }
-
 void lval_println(lval v) {
 	lval_print(v);
 	putchar('\n');
@@ -99,28 +99,28 @@ lval eval_op(lval x, char *op, lval y) {
 	if(x.type == LVAL_ERR) { return x; }
 	if(y.type == LVAL_ERR) { return y; }
 
-	/* Figure out which operation we're doing. */
-	if(strcmp(op, "+") == 0) { return lval_num(x.val.num + y.val.num); }
-	if(strcmp(op, "-") == 0) { return lval_num(x.val.num - y.val.num); }
-	if(strcmp(op, "*") == 0) { return lval_num(x.val.num * y.val.num); }
-	if(strcmp(op, "/") == 0 || strcmp(op, "div") == 0) {
-		/* If second operator is zero return a Divide by Zero error. */
-		return y.val.num == 0
-			? lval_err(LERR_DIV_ZERO)
-			: lval_num(x.val.num / y.val.num);
-		/* Note to self: this is my first time using the
-		   conditional operator. I need to learn its ins
-		   and outs better. */
+	/* Do the correct operation. */
+	if((strcmp(op, "+") == 0) || (strcmp(op, "add") == 0)) {
+		return lval_add(x, y);
 	}
-	if(strcmp(op, "%") == 0) { return lval_num(x.val.num % y.val.num); }
-	if(strcmp(op, "^") == 0) { return lval_num(powl(x.val.num,y.val.num)); }
-	if(strcmp(op, "add") == 0) { return lval_num(x.val.num + y.val.num); }
-	if(strcmp(op, "sub") == 0) { return lval_num(x.val.num - y.val.num); }
-	if(strcmp(op, "mul") == 0) { return lval_num(x.val.num * y.val.num); }
-	if(strcmp(op, "mod") == 0) { return lval_num(x.val.num % y.val.num); }
-	if(strcmp(op, "pow") == 0) { return lval_num(powl(x.val.num,y.val.num)); }
-	if(strcmp(op, "min") == 0) { return lval_num(fminl(x.val.num,y.val.num)); }
-	if(strcmp(op, "max") == 0) { return lval_num(fmaxl(x.val.num,y.val.num)); }
+	if((strcmp(op, "-") == 0) || (strcmp(op, "sub") == 0)) {
+		return lval_sub(x, y);
+	}
+	if((strcmp(op, "*") == 0) || (strcmp(op, "mul") == 0)) {
+		       	return lval_mul(x, y);
+	}
+	if((strcmp(op, "/") == 0) || (strcmp(op, "div") == 0)) {
+		/* If second operator is zero return a Divide by Zero error. */
+		return ((y.val.num.integer == 0) || (y.val.num.floating == 0))
+			? lval_err(LERR_DIV_ZERO)
+			: lval_div(x, y);
+	}
+	if((strcmp(op, "%") == 0) || (strcmp(op, "mod") == 0)) {
+	       	return lval_mod(x, y);
+	}
+	if((strcmp(op, "^") == 0) || (strcmp(op, "pow") == 0)) {
+	       	return lval_pow(x, y);
+	}
 	return lval_err(LERR_BAD_OP);
 }
 
@@ -147,6 +147,7 @@ lval eval_expr(mpc_ast_t *t) {
 		errno = 0;
 		long x = strtol(t->contents, NULL, 10);
 		return errno != ERANGE ? lval_num(x) : lval_err(LERR_BAD_NUM);
+	}
 	/* The operator is always the second child. */
 	char *op = t->children[1]->contents;
 	/* We store the third child in 'x'/ */
@@ -199,8 +200,8 @@ int main(void) {
 		int         : /-?[0-9]+/ ;                                     \
 		number      : <float> | <int> ;                                \
 		operator    : '+' | '-' | '*' | '/' | '%' | '^' |              \
-				      \"add\" | \"sub\" | \"mul\" | \"div\" |          \
-					  \"mod\" | \"pow\" | \"min\" | \"max\" ;          \
+			      \"add\" | \"sub\" | \"mul\" | \"div\" |          \
+	    		      \"mod\" | \"pow\" | \"min\" | \"max\" ;          \
 		expr        : <number> | '(' <operator> <expr>+ ')' ;          \
 		lusp        : /^/ (<operator> <expr>) /$/ ;          \
 		",
