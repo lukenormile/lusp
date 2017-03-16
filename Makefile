@@ -1,4 +1,4 @@
-CC=clang
+CC=cc
 CFLAGS=-I -std=c99 -g -Werror -Wall
 LDFLAGS=-ledit -lm
 SOURCES=parsing.c mpc.c

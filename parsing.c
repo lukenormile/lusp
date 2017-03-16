@@ -58,15 +58,7 @@ lval lval_float(float x) {
 lval lval_err(int x) {
 	lval v;
 	v.type = LVAL_ERR;
-	v.val.err = x; 
-	return v;
-}
-
-/* Create a new doge-type lval. */
-lval lval_doge() {
-	lval v;
-	v.type = LVAL_DOGE;
-	v.val.doge = "Wow";
+	v.val.err = x;
 	return v;
 }
 
@@ -93,9 +85,6 @@ void lval_print(lval v) {
 					printf("Error: couldn't evaluate input.");
 					break;
 			}
-		case LVAL_DOGE:
-			printf("%s", v.val.doge);
-			break;
 	}
 }
 
@@ -114,12 +103,12 @@ lval eval_op(lval x, char *op, lval y) {
 	if(strcmp(op, "+") == 0) { return lval_num(x.val.num + y.val.num); }
 	if(strcmp(op, "-") == 0) { return lval_num(x.val.num - y.val.num); }
 	if(strcmp(op, "*") == 0) { return lval_num(x.val.num * y.val.num); }
-	if(strcmp(op, "/") == 0 || strcmp(op, "div") == 0) { 
+	if(strcmp(op, "/") == 0 || strcmp(op, "div") == 0) {
 		/* If second operator is zero return a Divide by Zero error. */
 		return y.val.num == 0
 			? lval_err(LERR_DIV_ZERO)
 			: lval_num(x.val.num / y.val.num);
-		/* Note to self: this is my first time using the 
+		/* Note to self: this is my first time using the
 		   conditional operator. I need to learn its ins
 		   and outs better. */
 	}
@@ -135,7 +124,7 @@ lval eval_op(lval x, char *op, lval y) {
 	return lval_err(LERR_BAD_OP);
 }
 
-/* Evaluate an operator with a single operand. */ 
+/* Evaluate an operator with a single operand. */
 lval eval_tinyop(lval x, char *op) {
 	/* If x is an error return it. */
 	if(x.type == LVAL_ERR) { return x; }
@@ -162,7 +151,7 @@ lval eval_expr(mpc_ast_t *t) {
 	char *op = t->children[1]->contents;
 	/* We store the third child in 'x'/ */
 	lval x = eval_expr(t->children[2]);
-	
+
 	/* If there are no more children, perform a single-operand operation. */
 	int i = 3;
 	if(!strstr(t->children[i]->tag, "expr")) {
@@ -178,11 +167,6 @@ lval eval_expr(mpc_ast_t *t) {
 	return x;
 }
 
-/* Evaluate a Doge. */
-lval eval_doge() {
-	return lval_doge();
-}
-
 /* Begin to evaluate an input. */
 lval eval(mpc_ast_t *t) {
 	/* Default to error. */
@@ -194,8 +178,6 @@ lval eval(mpc_ast_t *t) {
 	/* If tagged as an operator evaluate it as an expression. */
 	if (strstr(construction->tag, "operator")) {
 		result = eval_expr(t);
-	} else if (strstr(construction->tag, "doge")) {
-		result = eval_doge();
 	}
 
 	return result;
@@ -203,10 +185,6 @@ lval eval(mpc_ast_t *t) {
 
 int main(void) {
 	/* Create some parsers. */
-	mpc_parser_t* Doge_Adj    = mpc_new("doge_adj");
-	mpc_parser_t* Doge_Noun   = mpc_new("doge_noun");
-	mpc_parser_t* Doge_Phrase = mpc_new("doge_phrase");
-	mpc_parser_t* Doge        = mpc_new("doge");
 	mpc_parser_t* Int   	  = mpc_new("int");
 	mpc_parser_t* Float 	  = mpc_new("float");
 	mpc_parser_t* Number      = mpc_new("number");
@@ -217,11 +195,6 @@ int main(void) {
 	/* Define the parsers with the following Language: */
 	mpca_lang(MPCA_LANG_DEFAULT,
 		"						               \
-		doge_adj    : \"wow\" | \"many\" | \"so\" | \"such\" ;         \
-		doge_noun   : \"lisp\" | \"language\" | \"book\" |             \
-		              \"build\" | \"C\" ;                              \
-		doge_phrase : <doge_adj> <doge_noun> ;                         \
-		doge        : \"doge\" <doge_phrase>* \"endoge\" ;             \
 		float       : /(0|-?[1-9][0-9]*)\\.[0-9]+/ ;                   \
 		int         : /-?[0-9]+/ ;                                     \
 		number      : <float> | <int> ;                                \
@@ -229,9 +202,8 @@ int main(void) {
 				      \"add\" | \"sub\" | \"mul\" | \"div\" |          \
 					  \"mod\" | \"pow\" | \"min\" | \"max\" ;          \
 		expr        : <number> | '(' <operator> <expr>+ ')' ;          \
-		lusp        : /^/ (<operator> <expr>+ | <doge>) /$/ ;          \
+		lusp        : /^/ (<operator> <expr>) /$/ ;          \
 		",
-		Doge_Adj, Doge_Noun, Doge_Phrase, Doge,
 		Float, Int, Number, Operator, Expr, Lusp
 	);
 
