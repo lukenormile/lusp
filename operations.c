@@ -1,7 +1,7 @@
 /* This file was generated from generate_ops.py */
 
-#include operations.h
-#include parsing.h
+#include "operations.h"
+#include "parsing.h"
 
 lval lval_add(lval x, lval y) {
 	if(x.type == LVAL_INT && y.type == LVAL_INT) {
@@ -104,3 +104,7 @@ lval lval_max(lval x, lval y) {
 			 y.val.num.floating));
 }
 
+/* Single-operand operations */
+lval lval_neg(lval x) {
+	return -x;
+}

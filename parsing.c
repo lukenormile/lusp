@@ -129,7 +129,7 @@ lval eval_tinyop(lval x, char *op) {
 	/* If x is an error return it. */
 	if(x.type == LVAL_ERR) { return x; }
 
-	if(strcmp(op, "-") == 0) { return lval_num(-(x.val.num)); }
+	if(strcmp(op, "-") == 0) { return lval_neg(x); }
 	else { return x; }
 }
 
@@ -140,13 +140,13 @@ lval eval_expr(mpc_ast_t *t) {
 	if(strstr(t->tag, "float")) {
 		/* Handle any errors in conversion. */
 		errno = 0;
-		float x = strtof(t->contents, NULL, 10);
-		return errno != ERANGE ? lval_num(x) : lval_err(LERR_BAD_NUM);
+		float x = strtof(t->contents, NULL);
+		return errno != ERANGE ? lval_float(x) : lval_err(LERR_BAD_NUM);
 	} else if(strstr(t->tag, "int")) {
 		/* Handle any errors in conversion. */
 		errno = 0;
-		long x = strtol(t->contents, NULL, 10);
-		return errno != ERANGE ? lval_num(x) : lval_err(LERR_BAD_NUM);
+		long x = strtold(t->contents, NULL);
+		return errno != ERANGE ? lval_int(x) : lval_err(LERR_BAD_NUM);
 	}
 	/* The operator is always the second child. */
 	char *op = t->children[1]->contents;
@@ -159,7 +159,7 @@ lval eval_expr(mpc_ast_t *t) {
 		x = eval_tinyop(x, op);
 	} else {
 		do {
-			/* Iterate the remaining children and combine results. */
+			/* Iterate remaining children and combine results. */
 			x = eval_op(x, op, eval_expr(t->children[i]));
 			i++;
 		} while(strstr(t->children[i]->tag, "expr"));
