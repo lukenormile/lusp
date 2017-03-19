@@ -195,15 +195,15 @@ int main(void) {
 
 	/* Define the parsers with the following Language: */
 	mpca_lang(MPCA_LANG_DEFAULT,
-		"						               \
+		"												               \
 		float       : /(0|-?[1-9][0-9]*)\\.[0-9]+/ ;                   \
 		int         : /-?[0-9]+/ ;                                     \
 		number      : <float> | <int> ;                                \
 		operator    : '+' | '-' | '*' | '/' | '%' | '^' |              \
-			      \"add\" | \"sub\" | \"mul\" | \"div\" |          \
+				      \"add\" | \"sub\" | \"mul\" | \"div\" |          \
 	    		      \"mod\" | \"pow\" | \"min\" | \"max\" ;          \
 		expr        : <number> | '(' <operator> <expr>+ ')' ;          \
-		lusp        : /^/ (<operator> <expr>) /$/ ;          \
+		lusp        : /^/ (<operator> <expr>+) /$/ ;                   \
 		",
 		Float, Int, Number, Operator, Expr, Lusp
 	);
@@ -230,7 +230,7 @@ int main(void) {
 		mpc_result_t r;
 		if(mpc_parse("<stdin>", input, Lusp, &r)) {
 			/* On success print the AST. Enable for debugging. */
-			// mpc_ast_print(r.output);
+			mpc_ast_print(r.output);
 
 			/* Evaluate the input and print the result. */
 			lval result = eval(r.output);
