@@ -198,7 +198,7 @@ int main(void) {
 	/* Define the parsers with the following Language: */
 	mpca_lang(MPCA_LANG_DEFAULT,
 		"												               \
-		float       : /(0|-?[1-9][0-9]*)\\.[0-9]+/ ;                   \
+		float       : /(0|-?[1-9][0-9]*)?\\.[0-9]+/ ;                  \
 		int         : /-?[0-9]+/ ;                                     \
 		number      : <float> | <int> ;                                \
 		operator    : '+' | '-' | '*' | '/' | '%' | '^' |              \
