@@ -121,6 +121,8 @@ lval eval_op(lval x, char *op, lval y) {
 	if((strcmp(op, "^") == 0) || (strcmp(op, "pow") == 0)) {
 	       	return lval_pow(x, y);
 	}
+	if(strcmp(op, "min") == 0) { return lval_min(x, y); }
+	if(strcmp(op, "max") == 0) { return lval_max(x, y); }
 	return lval_err(LERR_BAD_OP);
 }
 
